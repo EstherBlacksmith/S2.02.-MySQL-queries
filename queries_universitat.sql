@@ -19,3 +19,19 @@ select asignatura.nombre as "asignatura",curso_escolar.anyo_inicio as "año inic
 select departamento.nombre from departamento inner join profesor on departamento.id = profesor.id_departamento inner join asignatura on profesor.id_profesor = asignatura.id_profesor inner join grado on grado.id = asignatura.id_grado where grado.nombre ="Grado en Ingeniería Informática (Plan 2015)" group by departamento.nombre;
 -- Retorna un llistat amb tots els alumnes que s'han matriculat en alguna assignatura durant el curs escolar 2018/2019.
 select persona.apellido1,persona.apellido2,persona.nombre from persona inner join alumno_se_matricula_asignatura on persona.id = alumno_se_matricula_asignatura.id_alumno inner join curso_escolar on alumno_se_matricula_asignatura.id_curso_escolar = curso_escolar.id where curso_escolar.anyo_inicio >= 2018 and curso_escolar.anyo_fin <= 2019 and persona.tipo = "alumno" group by persona.id;
+-- Resol les 6 següents consultes utilitzant les clàusules LEFT JOIN i RIGHT JOIN.
+-- Retorna un llistat amb els noms de tots els professors/es i els departaments que tenen vinculats. 
+-- El llistat també ha de mostrar aquells professors/es que no tenen cap departament associat. 
+-- El llistat ha de retornar quatre columnes, nom del departament, primer cognom, segon cognom i nom del professor/a.
+-- El resultat estarà ordenat alfabèticament de menor a major pel nom del departament, cognoms i el nom.
+select departamento.nombre as"Departamento",persona.apellido1 as "Primer apellido",persona.apellido2 as "Segundo apellido", persona.nombre as "Nombre" from departamento left join profesor on profesor.id_departamento = departamento.id left join persona on profesor.id_profesor = persona.id and persona.tipo = "profesor" order by departamento.nombre asc,persona.apellido1 asc, persona.apellido2 asc, persona.nombre ;
+-- Retorna un llistat amb els professors/es que no estan associats a un departament.
+select persona.apellido1 as "Primer apellido",persona.apellido2 as "Segundo apellido", persona.nombre as "Nombre" from departamento inner join profesor on departamento.id = profesor.id_departamento right join persona on persona.id = profesor.id_profesor where profesor.id_profesor is null and persona.tipo = "profesor";
+-- Retorna un llistat amb els departaments que no tenen professors/es associats.
+select departamento.id, departamento.nombre as"Departamento" from departamento left join profesor on departamento.id = profesor.id_departamento where id_profesor is null;
+-- Retorna un llistat amb els professors/es que no imparteixen cap assignatura.
+select * from persona where id in(select profesor.id_profesor from profesor left join asignatura on profesor.id_profesor = asignatura.id_profesor where asignatura.id_profesor is null);
+-- Retorna un llistat amb les assignatures que no tenen un professor/a assignat.
+select asignatura.* from asignatura left join profesor on asignatura.id_profesor = profesor.id_profesor where asignatura.id_profesor is null;
+-- Retorna un llistat amb tots els departaments que no han impartit assignatures en cap curs escolar.
+select departamento.* from departamento inner join profesor on departamento.id = profesor.id_departamento left join asignatura on profesor.id_profesor = asignatura.id_profesor where asignatura.id is null group by departamento.id;
